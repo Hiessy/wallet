@@ -1,6 +1,8 @@
 package org.cyan.in;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.Validation;
 import org.cyan.core.service.AccountService;
 import org.cyan.exception.AccountNotFoundException;
 import org.cyan.in.model.AccountRequest;
@@ -15,8 +17,10 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.math.BigDecimal;
+import java.util.Set;
 
 import static org.hamcrest.Matchers.containsString;
+import static org.junit.Assert.assertEquals;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -79,6 +83,29 @@ class AccountControllerTest {
     @Test
     void shouldReturnBadRequestForEmptyBankName() throws Exception {
         AccountRequest invalid = validRequest.toBuilder().bankName("").build();
+
+        mockMvc.perform(post("/api/accounts")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(invalid)))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().string(containsString("Bank name is required")));
+    }
+
+
+    @Test
+    void shouldValidateBankNameInOrder() {
+        AccountRequest request = new AccountRequest("Alias123", "", BigDecimal.TEN);
+
+        Set<ConstraintViolation<AccountRequest>> violations = Validation.buildDefaultValidatorFactory().getValidator().validate(request);
+
+        // Should only contain NotBlank violation
+        assertEquals(1, violations.size());
+        assertEquals("Bank name is required", violations.iterator().next().getMessage());
+    }
+
+    @Test
+    void shouldReturnBadRequestForNullBankName() throws Exception {
+        AccountRequest invalid = validRequest.toBuilder().bankName(null).build();
 
         mockMvc.perform(post("/api/accounts")
                         .contentType(MediaType.APPLICATION_JSON)
