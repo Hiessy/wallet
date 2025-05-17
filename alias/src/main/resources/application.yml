@@ -1,0 +1,25 @@
+server:
+  port: 8081
+
+logging:
+  level:
+    org.springframework.web: DEBUG
+
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/banking
+    username: postgres
+    password: password
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: create
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+        show_sql: true
+  kafka:
+    bootstrap-servers: localhost:9092
+    template:
+      default-topic: alias-registered-topic
