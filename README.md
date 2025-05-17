@@ -1,9 +1,9 @@
 # wallet
 
-For a scalable microservices-based application handling user creation, account creation, transactions, and balance updates, here’s a high-level architecture:
+For a scalable microservices-based application handling alias creation, account creation, transactions, and balance updates, here’s a high-level architecture:
 1. Microservices Overview
 
-   User Service – Manages user creation and authentication.
+   Alias Service – Manages alias creation and authentication.
 
    Account Service – Handles account creation, linking to users.
 
@@ -72,4 +72,19 @@ For a scalable microservices-based application handling user creation, account c
    Observability → Prometheus + Grafana (monitoring), ELK stack (logging)
 
    Scalability → Auto-scaling with Kubernetes
-7. 
+
+Example flows:
+
+### 1. User makes a transaction (REST + Kafka):
+```plaintext
+Client → TransactionService (REST)
+→ Authenticates via AliasService (REST)
+→ Retrieves account via AccountService (REST)
+→ Publishes "TransactionCreated" to Kafka
+```
+### 🟨 2. BalanceService listens to Kafka:
+```plaintext
+BalanceService ← Kafka ← TransactionService
+→ Validates transaction
+→ Updates DB and Redis
+```
