@@ -72,3 +72,4 @@ For a scalable microservices-based application handling user creation, account c
    Observability → Prometheus + Grafana (monitoring), ELK stack (logging)
 
    Scalability → Auto-scaling with Kubernetes
+7. 
